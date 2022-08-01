@@ -19,31 +19,38 @@ function playerChoice() {
 
 function playRound (playerSelection, computerSelection){
 
-  if (computerSelection === "Rock" && playerSelection === "Scissors") {
+  if (computerSelection === "Rock" && playerSelection === "Scissors"||
+      computerSelection === "Paper" && playerSelection === "Rock"||
+      computerSelection === "Scissors" && playerSelection === "Paper"){
     return `Computer wins! ${computerSelection} beats ${playerSelection}`;
   } 
-  else if (computerSelection === "Paper" && playerSelection === "Rock") {
-    return `Computer wins! ${computerSelection} beats ${playerSelection}`;
-  } 
-  else if (computerSelection === "Scissors" && playerSelection === "Paper") {
-    return `Computer wins! ${computerSelection} beats ${playerSelection}`;
-  } 
-  else if (computerSelection === "Rock" && playerSelection === "Paper") {
+ 
+  else if(computerSelection === "Rock" && playerSelection === "Paper"|| 
+          computerSelection === "Paper" && playerSelection === "Scissors"||
+          computerSelection === "Scissors" && playerSelection === "Rock" ) {
     return `You win! ${playerSelection} beats ${computerSelection}`;
   } 
-  else if (computerSelection === "Paper" && playerSelection === "Scissors") {
-    return `You win! ${playerSelection} beats ${computerSelection}`;
-  } 
-  else if (computerSelection === "Scissors" && playerSelection === "Rock") {
-    return `You win! ${playerSelection} beats ${computerSelection}`;
-  } 
+  
   else if (computerSelection === playerSelection ) {
     return `A tie, computer chose ${computerSelection}, you chose ${playerSelection}`;
   }  
 
 }
-const computerSelection = getComputerChoice();
-const playerSelection = playerChoice();
 
-console.log(playRound(playerSelection,computerSelection))
+let computerSelection = getComputerChoice();
+let playerSelection = playerChoice();
+console.log(playRound(playerSelection, computerSelection));
+
+
+// working on the game function 
+
+// function game (){
+  
+//   i=1
+//   while (i<=5){
+//     return playRound(playerSelection, computerSelection)
+//   }
+  
+// }
+// console.log(game());
 
