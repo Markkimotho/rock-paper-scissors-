@@ -1,56 +1,44 @@
-// getting a random choice from the computer
+const choices = ["Rock 🪨", "Paper 📃", "Scissors ✂"]
 
-function getComputerChoice() {
-  const choicesArray = ["Rock", "Paper", "Scissors"]; // defining an array from whence the computer will get its random choice!
+// Selecting the elements
+const rockEl = document.querySelector(".choice1")
+const paperEl = document.querySelector(".choice2")
+const scissorsEl = document.querySelector(".choice3")
+const againBtn = document.querySelector(".again-button")
+const winner = document.querySelector(".winner")
+const playScore = document.querySelector(".score-count1")
+const compScore = document.querySelector(".score-count2")
+
+let value,rockEvent ;
+let score = 0;
+
+// getting a random choice from the computer
+const computerSelection = function getComputerChoice() {
+  const choicesArray = ["Rock 🪨", "Paper 📃", "Scissors ✂"]; // defining an array from whence the computer will get its random choice!
   const randomChoice = Math.floor(Math.random() * choicesArray.length);
+  document.querySelector(".computer-choice").textContent = choicesArray[randomChoice] 
   return choicesArray[randomChoice];
 }
+computerSelection();
 
-// prompt a player for input
-function playerChoice() {
-  const playerPrompt = String(
-    prompt(
-      "What is your choice?\n Rock, Paper, or Scissors?\nType in your choice!"
-    )
-  );
-  return playerPrompt;
-}
+// player choice
 
-
-function playRound (playerSelection, computerSelection){
-
-  if (computerSelection === "Rock" && playerSelection === "Scissors"||
-      computerSelection === "Paper" && playerSelection === "Rock"||
-      computerSelection === "Scissors" && playerSelection === "Paper"){
-    return `Computer wins! ${computerSelection} beats ${playerSelection}`;
-  } 
- 
-  else if(computerSelection === "Rock" && playerSelection === "Paper"|| 
-          computerSelection === "Paper" && playerSelection === "Scissors"||
-          computerSelection === "Scissors" && playerSelection === "Rock" ) {
-    return `You win! ${playerSelection} beats ${computerSelection}`;
-  } 
+rockEl.addEventListener ('click', function(){
+  value = rockEl.nodeValue = choices[0]
+  document.querySelector(".player-choice").textContent = value
   
-  else if (computerSelection === playerSelection ) {
-    return `A tie, computer chose ${computerSelection}, you chose ${playerSelection}`;
-  }  
+})
 
-}
+paperEl.addEventListener ('click', function(){
+  value = paperEl.nodeValue = choices[1]
+  document.querySelector(".player-choice").textContent = value
+})
 
-let computerSelection = getComputerChoice();
-let playerSelection = playerChoice();
-console.log(playRound(playerSelection, computerSelection));
+scissorsEl.addEventListener ('click', function(){
+  value = scissorsEl.nodeValue = choices[2]
+  document.querySelector(".player-choice").textContent = value
+})
 
 
-// working on the game function 
 
-// function game (){
-  
-//   i=1
-//   while (i<=5){
-//     return playRound(playerSelection, computerSelection)
-//   }
-  
-// }
-// console.log(game());
 
