@@ -1,44 +1,20 @@
-const choices = ["Rock 🪨", "Paper 📃", "Scissors ✂"]
+/*pseudocode:
+    1. Add an event listener for every choice the player makes
+    2. The player's choice is displayed on the screen
+    3. FUNCTION: for the computer's choice which is generated randomly
+    4. FUNCTION: for playing one round of RPS
+*/
 
-// Selecting the elements
-const rockEl = document.querySelector(".choice1")
-const paperEl = document.querySelector(".choice2")
-const scissorsEl = document.querySelector(".choice3")
-const againBtn = document.querySelector(".again-button")
-const winner = document.querySelector(".winner")
-const playScore = document.querySelector(".score-count1")
-const compScore = document.querySelector(".score-count2")
+const choices = ["Rock 🪨", "Paper 📃", "Scissors ✂"];
 
-let value,rockEvent ;
-let score = 0;
-
-// getting a random choice from the computer
-const computerSelection = function getComputerChoice() {
-  const choicesArray = ["Rock 🪨", "Paper 📃", "Scissors ✂"]; // defining an array from whence the computer will get its random choice!
-  const randomChoice = Math.floor(Math.random() * choicesArray.length);
-  document.querySelector(".computer-choice").textContent = choicesArray[randomChoice] 
-  return choicesArray[randomChoice];
+const playerSelection = function getPlayerChoice(){
+    pass;
 }
-computerSelection();
 
-// player choice
+const computerSelection = function getComputerChoice(){
+    pass;
+}
 
-rockEl.addEventListener ('click', function(){
-  value = rockEl.nodeValue = choices[0]
-  document.querySelector(".player-choice").textContent = value
-  
-})
-
-paperEl.addEventListener ('click', function(){
-  value = paperEl.nodeValue = choices[1]
-  document.querySelector(".player-choice").textContent = value
-})
-
-scissorsEl.addEventListener ('click', function(){
-  value = scissorsEl.nodeValue = choices[2]
-  document.querySelector(".player-choice").textContent = value
-})
-
-
-
-
+const playGame = function playRound(playerSelection, computerSelection){
+    pass;
+}
