@@ -9,28 +9,32 @@
   <title>Rock Paper Scissors</title>
 </head>
 <body>
+
+  <div class="scrolling-text">
+    <p class="glowy-font">First one to score 5 wins!</p>
+  </div> 
   <div class="images">
     <button class="rock" onclick="displayOption(this)" value="rock"><img src="rock.png" alt="rock"></button>
     <button class="paper" onclick="displayOption(this)" value="paper"><img src="paper.png" alt="paper"></button>
     <button class="scissors" onclick="displayOption(this)" value="scissors"><img src="scissors.png" alt="scissors"></button>
   </div>
   <div class="display-results">
-    <p class="player-results">-</p>
-    <p class="comp-results">-</p> 
+    <p class="player-results"></p>
+    <p class="comp-results"></p> 
   </div>
   <div class="gamelogic">
     <section class="participants">
-      <p>Player</p>
-      <p>Computer</p>
+      <p class="glowy-font">Player</p>
+      <p class="glowy-font">Computer</p>
     </section>
     <section class="scores">
-      <p class="sc1">0</p>
-      <p class="sc2">0</p>
+      <p class="sc1 glowy-font">0</p>
+      <p class="sc2 glowy-font">0</p>
     </section>
   </div>
   <div class="buttons">
-    <button class="again">AGAIN</button>
-    <button class="history">HISTORY</button>
+    <button class="again glowy-font">AGAIN</button>
+    <!-- <button class="history">HISTORY</button> -->
   </div>
 </body>
 </html>

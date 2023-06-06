@@ -7,6 +7,7 @@ const results = document.querySelector(".display-results");
 const compResults = document.querySelector(".comp-results");
 const playResults = document.querySelector(".player-results");
 const againBtn = document.querySelector(".again");
+const scrollingText = document.querySelector(".scrolling-text");
 const choices = ["🪨", "📃", "✄"];
 let initialScore1 = parseInt(score1.textContent);
 let initialScore2 = parseInt(score2.textContent);
@@ -56,6 +57,8 @@ function displayOption(btn) {
       playResults.textContent = choices[2];
       playRound(choices[2], getComputerChoice());
     }
+
+    scrollingText.style.display = "none"; // Stop scrolling text when player presses a button
   }
 }
 
@@ -85,6 +88,7 @@ function restartGame() {
   paperBtn.disabled = false;
   scissorsBtn.disabled = false;
   againBtn.disabled = true;
+  scrollingText.style.display = "block"; // Show scrolling text when the game is restarted
 }
 
 rockBtn.addEventListener("click", function () {
@@ -102,4 +106,3 @@ scissorsBtn.addEventListener("click", function () {
 againBtn.addEventListener("click", function () {
   restartGame();
 });
-
