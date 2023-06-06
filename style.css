@@ -1,5 +1,7 @@
 body {
-    background-color: #4C4C6D;
+    background-color: #585858;
+    max-width: 700px;
+    margin: auto;
   }
   
   .images {
@@ -26,7 +28,7 @@ body {
     justify-content: space-evenly;
     align-items: center;
     margin: 20px 50px 0 50px;
-    background-color: aqua;
+    background-color: #c2c2c2;
   }
   
   .buttons {
@@ -37,7 +39,7 @@ body {
   }
   
   .buttons button {
-    background-color: #5A5A5A;
+    background-color: #000000;
     color: white;
     border: none;
     padding: 10px 20px;

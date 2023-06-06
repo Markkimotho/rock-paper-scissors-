@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game History</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f6f6f6;
+      margin: 0;
+      padding: 20px;
+    }
+    
+    h1 {
+      text-align: center;
+    }
+    
+    .history-list {
+      list-style-type: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+    
+    .history-item {
+      margin-bottom: 10px;
+      padding: 10px;
+      background-color: #ffffff;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .history-item p {
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Game History</h1>
+  <ul class="history-list">
+    <!-- The game history items will be dynamically added here using JavaScript -->
+  </ul>
+
+  <script>
+    // Retrieve the game history from localStorage
+    const gameHistory = JSON.parse(localStorage.getItem("gameHistory"));
+
+    // Select the history list element
+    const historyList = document.querySelector(".history-list");
+
+    // Check if there is game history data
+    if (gameHistory && gameHistory.length > 0) {
+      // Loop through the game history data and create list items
+      gameHistory.forEach((round, index) => {
+        const listItem = document.createElement("li");
+        listItem.classList.add("history-item");
+
+        const roundNumber = document.createElement("p");
+        roundNumber.textContent = `Round ${index + 1}`;
+
+        const playerChoice = document.createElement("p");
+        playerChoice.textContent = `Player: ${round.player}`;
+
+        const computerChoice = document.createElement("p");
+        computerChoice.textContent = `Computer: ${round.computer}`;
+
+        const result = document.createElement("p");
+        result.textContent = `Result: ${round.result}`;
+
+        listItem.appendChild(roundNumber);
+        listItem.appendChild(playerChoice);
+        listItem.appendChild(computerChoice);
+        listItem.appendChild(result);
+
+        historyList.appendChild(listItem);
+      });
+    } else {
+      // Display a message if there is no game history data
+      const noHistoryMessage = document.createElement("p");
+      noHistoryMessage.textContent = "No game history available.";
+      historyList.appendChild(noHistoryMessage);
+    }
+  </script>
+</body>
+</html>

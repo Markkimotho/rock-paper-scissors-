@@ -102,3 +102,4 @@ scissorsBtn.addEventListener("click", function () {
 againBtn.addEventListener("click", function () {
   restartGame();
 });
+
