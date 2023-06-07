@@ -82,8 +82,8 @@ function restartGame() {
   score1.textContent = initialScore1;
   score2.textContent = initialScore2;
   results.textContent = "";
-  playResults.textContent = "-";
-  compResults.textContent = "-";
+  playResults.textContent = "__";
+  compResults.textContent = "__";
   rockBtn.disabled = false;
   paperBtn.disabled = false;
   scissorsBtn.disabled = false;
