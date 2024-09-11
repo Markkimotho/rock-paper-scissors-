@@ -29,8 +29,6 @@ function playRound(playerSelection) {
 
   if (playerSelection === computerSelection) {
     results.textContent = "It's a tie!";
-    playerScore++;
-    computerScore++;
   } else if (
     (playerSelection === choices[0] && computerSelection === choices[1]) ||
     (playerSelection === choices[1] && computerSelection === choices[2]) ||
