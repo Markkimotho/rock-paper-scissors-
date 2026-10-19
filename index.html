@@ -22,6 +22,13 @@
 
   <main>
     <svg class="stage" viewBox="0 0 800 430" role="img" aria-label="Two fists facing each other">
+      <defs>
+        <!-- Repaints the sprite outlines in the theme's ink, from their alpha. CSS filters on SVG images are ignored by Safari; SVG filters are not. -->
+        <filter id="hand-ink" color-interpolation-filters="sRGB">
+          <feFlood class="ink-flood"/>
+          <feComposite in2="SourceAlpha" operator="in"/>
+        </filter>
+      </defs>
       <g class="beat" aria-hidden="true">
         <path class="ticks" d="M340 250v14M380 250v14M420 250v14M460 250v14"/>
         <circle class="dot" cx="340" cy="257" r="5"/>

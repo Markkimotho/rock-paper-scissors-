@@ -98,11 +98,9 @@ main {
   stroke-linejoin: round;
 }
 
-/* hands: PNG sprites, ink outline on transparent. Multiply drops the white fill into the paper color. */
-.hand image { mix-blend-mode: multiply; }
-@media (prefers-color-scheme: dark) {
-  .hand image { filter: invert(1); mix-blend-mode: screen; }
-}
+/* hands: PNG sprites, black outline on transparent. The #hand-ink SVG filter repaints them in --ink,
+   so they follow light and dark mode in every browser (Safari ignores CSS filters on SVG images). */
+.stage .ink-flood { flood-color: var(--ink); }
 .hand .pose { opacity: 0; transition: opacity 140ms ease; }
 .hand[data-pose="rock"] .pose.rock,
 .hand[data-pose="paper"] .pose.paper,

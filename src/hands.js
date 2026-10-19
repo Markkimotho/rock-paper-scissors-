@@ -1,4 +1,5 @@
 // Hand sprites. The three PNGs are 200x200, black outline on transparent, drawn facing different ways,
+// recoloured to the theme's ink by the #hand-ink SVG filter in index.html (works in Safari too),
 // so each pose gets its own transform to make them all face inward from the player's (left) side.
 // The computer side is the same markup mirrored by its parent group.
 // Local space: image is centered on x=0 and sits on the wrist anchor at y=0.
@@ -23,7 +24,7 @@ export function handMarkup() {
   const poses = Object.entries(ASSETS)
     .map(
       ([name, href]) =>
-        `<g class="pose ${name}"><image href="${href}" x="-100" y="-185" width="200" height="200" transform="${POSE_TRANSFORM[name]}"/></g>`,
+        `<g class="pose ${name}"><image href="${href}" x="-100" y="-185" width="200" height="200" transform="${POSE_TRANSFORM[name]}" filter="url(#hand-ink)"/></g>`,
     )
     .join('');
   return `<g class="float"><g class="bob">${poses}</g></g>`;

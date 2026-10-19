@@ -55,3 +55,14 @@ test('layout column is centered on wide screens', () => {
   const css = readFileSync(new URL('../style.css', import.meta.url), 'utf8');
   assert.match(css, /grid-template-columns: minmax\(0, \d+px\);\s*grid-template-rows:[^;]*;\s*justify-content: center;/);
 });
+
+test('regression: hands follow the theme ink through an SVG filter, not a CSS filter Safari ignores', () => {
+  // Dark mode once inverted the sprites with `filter: invert(1)`. Safari does not apply CSS filters to
+  // SVG <image>, so the black outlines vanished on the dark page.
+  const css = readFileSync(new URL('../style.css', import.meta.url), 'utf8');
+  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  assert.doesNotMatch(css, /\.hand image\s*\{[^}]*filter/);
+  assert.match(css, /\.ink-flood \{ flood-color: var\(--ink\); \}/);
+  assert.match(html, /<filter id="hand-ink"[\s\S]*<feFlood class="ink-flood"\/>[\s\S]*operator="in"/);
+  for (const m of MOVES) assert.match(handMarkup(), new RegExp(`pose ${m}"><image[^>]*filter="url\\(#hand-ink\\)"`));
+});
