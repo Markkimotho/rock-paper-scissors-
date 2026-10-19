@@ -1,0 +1,3 @@
+#!/bin/sh
+# Gate: deterministic unit tests, must stay under 2s.
+npm test --silent
