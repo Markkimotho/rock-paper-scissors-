@@ -127,6 +127,23 @@ await page.waitForFunction(() => window.__rps.state !== 'busy', null, { timeout:
 const roundsAfter = await page.evaluate(() => window.__rps.match.state.rounds);
 if (roundsAfter - roundsBefore !== 1) fail(`mashing keys played ${roundsAfter - roundsBefore} rounds, want 1`);
 
+// ---- 4. large displays stay centered ----
+for (const [w, h] of [[1920, 1080], [2560, 1440], [3440, 1440]]) {
+  const big = await browser.newPage({ viewport: { width: w, height: h } });
+  await big.goto(url);
+  const mids = await big.evaluate(() => ['header', 'main', 'footer', '.stage'].map((q) => {
+    const b = document.querySelector(q).getBoundingClientRect();
+    return { q, mid: b.left + b.width / 2, w: b.width };
+  }));
+  for (const m of mids) {
+    if (Math.abs(m.mid - w / 2) > 1) fail(`${w}px: ${m.q} midpoint ${m.mid} is off center (${w / 2})`);
+  }
+  const col = mids.find((m) => m.q === 'main').w;
+  if (col > 900) fail(`${w}px: column ${col}px is wider than 900px`);
+  await big.screenshot({ path: `evals/out/eval-wide-${w}.png` });
+  await big.close();
+}
+
 await ctx.close();
 await browser.close();
 await close();

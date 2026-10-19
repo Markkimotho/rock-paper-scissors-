@@ -9,11 +9,14 @@ export const ASSETS = {
   scissors: 'assets/scissors.png',
 };
 
-// rock.png faces left and scissors.png faces right natively; paper.png is upright.
-const POSE_TRANSFORM = {
-  rock: 'scale(-1 1) rotate(-8 0 -85)',
-  paper: 'rotate(8 0 -85)',
-  scissors: 'rotate(-14 0 -85)',
+// All three sprites natively face right (paper is upright). Each pose is first translated so the
+// sprite's measured visual centroid (alpha > 40) lands on the shared anchor (0,-85), then rotated about
+// that anchor. Same anchor for every pose means a pose swap changes shape, not position.
+//   centroid px: rock (104.6, 97.7)  paper (104.1, 94.9)  scissors (102.5, 92.7)
+export const POSE_TRANSFORM = {
+  rock: 'rotate(-4 0 -85) translate(-4.6 2.3)',
+  paper: 'rotate(8 0 -85) translate(-4.1 5.1)',
+  scissors: 'rotate(-10 0 -85) translate(-2.5 7.3)',
 };
 
 export function handMarkup() {

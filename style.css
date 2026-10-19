@@ -29,7 +29,9 @@ body {
   color: var(--ink);
   font-family: var(--serif);
   display: grid;
+  grid-template-columns: minmax(0, 880px);
   grid-template-rows: auto 1fr auto;
+  justify-content: center;
   min-height: 100dvh;
   padding: 0 clamp(16px, 4vw, 40px);
   -webkit-tap-highlight-color: transparent;
@@ -81,9 +83,9 @@ main {
 
 .stage {
   width: 100%;
-  max-width: 760px;
+  max-width: min(100%, 880px);
   height: auto;
-  max-height: 52dvh;
+  max-height: 54dvh;
   overflow: visible;
 }
 
@@ -101,7 +103,7 @@ main {
 @media (prefers-color-scheme: dark) {
   .hand image { filter: invert(1); mix-blend-mode: screen; }
 }
-.hand .pose { opacity: 0; }
+.hand .pose { opacity: 0; transition: opacity 140ms ease; }
 .hand[data-pose="rock"] .pose.rock,
 .hand[data-pose="paper"] .pose.paper,
 .hand[data-pose="scissors"] .pose.scissors { opacity: 1; }

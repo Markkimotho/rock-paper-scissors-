@@ -119,17 +119,19 @@ function pump(index) {
   }
 }
 
-// The throw: the new shape pops in small and overshoots, then settles.
+// The throw: a small wind-up crouch, then the new shape springs out and settles. It starts and ends on
+// the resting transforms so it joins the pump and the thrown state without a jump.
 function pop(side) {
   if (reducedMotion.matches) return;
-  const dir = side === 'cpu' ? rand(0.7, 1.3) : 1;
+  const reach = side === 'cpu' ? rand(0.85, 1.15) : 1;
   hands[side].querySelector('.bob').animate(
     [
-      { transform: 'translateY(-14px) rotate(-10deg) scale(.78)' },
-      { transform: `translateY(${-50 * dir}px) rotate(4deg) scale(1.12)`, offset: 0.5, easing: 'cubic-bezier(.2,.8,.3,1)' },
-      { transform: 'translateY(-38px) rotate(0deg) scale(1)' },
+      { transform: 'translateY(-26px) rotate(0deg) scale(1,1)', easing: 'cubic-bezier(.4,0,.6,1)' },
+      { transform: 'translateY(-20px) rotate(-5deg) scale(.93)', offset: 0.22, easing: 'cubic-bezier(.15,.9,.3,1)' },
+      { transform: `translateY(${-38 - 14 * reach}px) rotate(3deg) scale(1.1)`, offset: 0.58, easing: 'cubic-bezier(.3,0,.3,1)' },
+      { transform: 'translateY(-38px) rotate(0deg) scale(1,1)' },
     ],
-    { duration: 420, easing: 'cubic-bezier(.3,0,.2,1)', delay: side === 'cpu' ? rand(0, 30) : 0 },
+    { duration: 460, delay: side === 'cpu' ? rand(0, 30) : 0 },
   );
 }
 

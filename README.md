@@ -14,13 +14,13 @@ npm run serve        # http://localhost:5501
 
 ES modules need a server, so opening `index.html` directly from disk will not work. Live Server in VS Code (port 5501) also works.
 
-| Input | Action |
-| --- | --- |
-| click a word, or `r` `p` `s` | pick rock, paper, scissors |
-| `enter` / `space` | begin, or play again after a match |
-| `m` | sound on/off |
-| `esc` | skip the walkthrough |
-| "how to play" | replay the walkthrough |
+| Input                              | Action                             |
+| ---------------------------------- | ---------------------------------- |
+| click a word, or `r` `p` `s` | pick rock, paper, scissors         |
+| `enter` / `space`              | begin, or play again after a match |
+| `m`                              | sound on/off                       |
+| `esc`                            | skip the walkthrough               |
+| "how to play"                      | replay the walkthrough             |
 
 ## How a round runs
 
@@ -51,13 +51,13 @@ evals/                browser eval and dev screenshot helpers (playwright-core)
 ## Tests and evals
 
 ```bash
-npm test                      # gate: 49 tests, under a second
+npm test                      # gate: 53 tests, under a second
 git config core.hooksPath .githooks   # once per clone, runs tests on commit
 npm install && npm run eval   # periodic: 20 rounds in headless Chromium
 ROUNDS=6 npm run eval         # quick smoke
 ```
 
-The eval uses a fake `speechSynthesis` and checks, per round: throw lands at 3 beats (1680 ms, plus or minus 150), the four count words are spoken 560 ms apart (plus or minus 80), the result line matches the rules, no console errors, and mashing keys mid-round plays exactly one round. It also runs the first-run walkthrough and checks every line is spoken in order. Pass threshold is every check on every round. Output goes to `evals/out/` (git-ignored).
+The eval uses a fake `speechSynthesis` and checks, per round: throw lands at 3 beats (1680 ms, plus or minus 150), the four count words are spoken 560 ms apart (plus or minus 80), the result line matches the rules, no console errors, and mashing keys mid-round plays exactly one round. It also checks the layout stays centered at 1920, 2560 and 3440 px wide, and runs the first-run walkthrough and checks every line is spoken in order. Pass threshold is every check on every round. Output goes to `evals/out/` (git-ignored).
 
 `playwright-core` is pinned to 1.49.1 to match the Chromium build in the local Playwright cache. If you have a different cache, run `npx playwright-core install chromium` after changing the pin.
 
@@ -75,4 +75,4 @@ For the most natural sound, install a Premium or Enhanced voice (macOS: System S
 
 The hands are the original PNGs, animated per hand so nothing moves in lockstep: each pump has an anticipation lift, a hit with squash, and a wrist swing. Every beat hits harder than the last, the computer lags a few milliseconds and swings a little differently, the throw pops in and overshoots, the winner hops, and idle hands drift slowly. The beat clock itself stays exact, so the voice and the eval timing do not move.
 
-Built as part of the [Odin Project](https://www.theodinproject.com/lessons/foundations-rock-paper-scissors) foundations course.
+Built and Scaled as part of the [Odin Project](https://www.theodinproject.com/lessons/foundations-rock-paper-scissors) foundations course.
