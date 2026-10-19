@@ -1,93 +1,225 @@
+:root {
+  --paper: #f3efe6;
+  --ink: #1c1b18;
+  --mute: #1c1b1866;
+  --accent: #d8432b;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --beat: 560ms;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #161512;
+    --ink: #ece7db;
+    --mute: #ece7db66;
+    --accent: #ee6a50;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body { height: 100%; }
+
 body {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 30px;
-    background-color: #3a3a3a;
-    max-width: 700px;
-    margin: auto;
-  }
-  
-  .images {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-    align-items: center;
-    margin-top: 100px;
-  }
-  
-  .images button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    border-radius: 10px;
-  }
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100dvh;
+  padding: 0 clamp(16px, 4vw, 40px);
+  -webkit-tap-highlight-color: transparent;
+}
 
-  .images button:hover{
-    background-color: #6b6b6b;
-  }
-  
-  .display-results,
-  .gamelogic .participants,
-  .gamelogic .scores {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-    align-items: center;
-    margin: 20px 50px 0 50px;
-    background-color: #4b4a4a;
-    border-radius: 5px;
-  }
-  
-  .buttons {
-    margin: 20px 50px 0 50px;
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-  }
-  
-  .buttons button {
-    background-color: #000000;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    border-radius: 5px;   
-  }
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
 
-  body .glowy-font {
-    text-shadow: 0 0 5px #ffffff, 0 0 10px #ffffff, 0 0 20px #ffffff, 0 0 30px #ffffff, 0 0 40px #ffffff, 0 0 50px #ffffff, 0 0 60px #ffffff;
-  }
+button:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: 2px; }
+button:disabled { cursor: default; }
 
-  .buttons button:hover {
-    background-color: #7b7b7b;
-    cursor: pointer;
-    text-shadow: 0 0 5px #ffffff;
-  }
+/* header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 24px 0 0;
+  gap: 16px;
+}
+h1 { margin: 0; font-size: 15px; font-weight: 400; font-style: italic; letter-spacing: 0.02em; }
+nav { display: flex; gap: 20px; }
 
-  .scrolling-text {
-    width: 100%;
-    background-color: #3a3a3a;
-    color: #ffffff;
-    padding: 10px;
-    text-align: center;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 9999;
-    animation: scrolling 15s linear infinite;
-    font-size: 20px;
-    text-shadow: 0 0 20px;
-  }
-  
-  @keyframes scrolling {
-    0% {
-      transform: translateX(100%);
-    }
-    100% {
-      transform: translateX(-100%);
-    }
-  }
+.link {
+  font-size: 15px;
+  font-style: italic;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--mute);
+}
+.link:hover { text-decoration-color: var(--ink); }
+.link[aria-pressed="false"] { opacity: 0.55; }
+
+/* stage */
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 0;
+}
+
+.stage {
+  width: 100%;
+  max-width: 760px;
+  height: auto;
+  max-height: 52dvh;
+  overflow: visible;
+}
+
+.stage * { vector-effect: non-scaling-stroke; }
+.stage path, .stage rect, .stage circle {
+  fill: var(--paper);
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* hands */
+.hand .pose { display: none; }
+.hand[data-pose="rock"] .pose.rock,
+.hand[data-pose="paper"] .pose.paper,
+.hand[data-pose="scissors"] .pose.scissors { display: inline; }
+
+.hand .sleeve path { fill: none; }
+.hand .pose path[d^="M-34 -48"] { fill: none; }
+
+.bob {
+  transform: translateY(-26px);
+  transition: transform 220ms cubic-bezier(.2, .8, .2, 1), opacity 240ms ease;
+}
+.hand[data-thrown="true"] .bob { transform: translateY(-38px); }
+.hand[data-lost="true"] .bob { opacity: 0.3; }
+
+/* beat rule: four ticks and one travelling dot */
+.beat .ticks { fill: none; stroke: var(--mute); stroke-width: 2; }
+.beat .dot {
+  fill: var(--accent);
+  stroke: none;
+  transform: translateX(0);
+  opacity: 0.25;
+  transition: transform calc(var(--beat) * 0.35) cubic-bezier(.3, 0, .2, 1), opacity 160ms ease;
+}
+.beat .dot[data-tick="0"] { transform: translateX(0); }
+.beat .dot[data-tick="1"] { transform: translateX(40px); }
+.beat .dot[data-tick="2"] { transform: translateX(80px); }
+.beat .dot[data-tick="3"] { transform: translateX(120px); }
+.beat .dot[data-live="true"] { opacity: 1; }
+
+/* winner mark */
+.mark {
+  fill: none !important;
+  stroke: var(--accent) !important;
+  stroke-width: 3 !important;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scaleX(0);
+  transition: transform 260ms cubic-bezier(.2, .8, .2, 1);
+}
+.mark[data-on="true"] { transform: scaleX(1); }
+
+/* caption */
+.caption {
+  margin: 0;
+  min-height: 2.6em;
+  max-width: 34ch;
+  text-align: center;
+  font-size: clamp(18px, 3.2vw, 24px);
+  line-height: 1.3;
+  font-style: italic;
+  text-wrap: balance;
+}
+
+.caption button { font-size: inherit; font-style: italic; text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 1px; }
+.caption button .dot-inline {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-right: 10px;
+  vertical-align: middle;
+  animation: breathe 1.8s ease-in-out infinite;
+}
+@keyframes breathe { 50% { transform: scale(0.55); opacity: 0.5; } }
+
+/* controls */
+.controls {
+  display: flex;
+  gap: clamp(20px, 7vw, 56px);
+  margin-top: 8px;
+  transition: opacity 200ms ease;
+}
+.pick {
+  font-size: clamp(24px, 5vw, 34px);
+  position: relative;
+  padding: 6px 0;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 8px;
+  text-decoration-color: transparent;
+}
+.pick kbd {
+  font: 11px/1 ui-monospace, "SF Mono", Menlo, monospace;
+  color: var(--mute);
+  vertical-align: super;
+  margin-left: 4px;
+}
+.pick:hover:not(:disabled) { text-decoration-color: var(--ink); }
+.pick[aria-pressed="true"] { text-decoration-color: var(--ink); text-decoration-thickness: 2px; }
+
+body[data-state="idle"] .controls,
+body[data-state="tutorial"] .controls,
+body[data-state="busy"] .pick:not([aria-pressed="true"]),
+body[data-state="over"] .controls { opacity: 0.25; pointer-events: none; }
+
+/* score */
+footer {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: end;
+  padding: 0 0 clamp(20px, 4vh, 36px);
+  gap: 16px;
+}
+.score { display: grid; grid-template-columns: auto auto; column-gap: 14px; align-items: end; justify-content: start; }
+.score.right { grid-column: 3; justify-content: end; text-align: right; }
+.score .who { grid-column: 1 / -1; font-size: 14px; font-style: italic; margin-bottom: 2px; }
+.score .n { font-size: clamp(56px, 12vw, 96px); line-height: 0.9; font-variant-numeric: lining-nums tabular-nums; }
+.score.right .n { order: 2; }
+.score.right .pips { order: 1; }
+.pips { display: flex; gap: 5px; align-items: flex-end; padding-bottom: 6px; }
+.pips i { width: 2px; height: 18px; background: var(--ink); opacity: 0.18; transition: opacity 200ms ease, transform 200ms ease; transform-origin: bottom; }
+.pips i[data-on="true"] { opacity: 1; }
+#again { grid-column: 2; font-size: 22px; align-self: center; }
+
+@media (max-width: 520px) {
+  .stage { max-height: 44dvh; }
+  .controls { gap: 18px; }
+  .pick kbd { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bob, .mark, .beat .dot, .controls, .pips i { transition: none; }
+  .caption button .dot-inline { animation: none; }
+}
