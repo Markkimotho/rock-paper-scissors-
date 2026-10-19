@@ -14,6 +14,7 @@
   <header>
     <h1>rock paper scissors</h1>
     <nav>
+      <button type="button" id="voice" class="link" hidden></button>
       <button type="button" id="how" class="link">how to play</button>
       <button type="button" id="sound" class="link" aria-pressed="true">sound on</button>
     </nav>
@@ -25,10 +26,10 @@
         <path class="ticks" d="M340 250v14M380 250v14M420 250v14M460 250v14"/>
         <circle class="dot" cx="340" cy="257" r="5"/>
       </g>
-      <g class="side player" transform="translate(210 330) scale(1.55)"><g class="tilt" transform="rotate(7)"><g class="hand" id="hand-player"></g></g></g>
-      <g class="side cpu" transform="translate(590 330) scale(-1.55 1.55)"><g class="tilt" transform="rotate(7)"><g class="hand" id="hand-cpu"></g></g></g>
-      <path class="mark" id="mark-player" d="M170 412H250"/>
-      <path class="mark" id="mark-cpu" d="M550 412H630"/>
+      <g class="side player" transform="translate(205 335) scale(1.1)"><g class="tilt"><g class="hand" id="hand-player"></g></g></g>
+      <g class="side cpu" transform="translate(595 335) scale(-1.1 1.1)"><g class="tilt"><g class="hand" id="hand-cpu"></g></g></g>
+      <path class="mark" id="mark-player" d="M165 405H245"/>
+      <path class="mark" id="mark-cpu" d="M555 405H635"/>
     </svg>
 
     <p id="caption" class="caption" aria-live="polite"></p>

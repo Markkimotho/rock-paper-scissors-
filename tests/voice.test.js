@@ -98,3 +98,50 @@ test('voices that load late are picked up via onvoiceschanged', () => {
   synth.onvoiceschanged();
   assert.equal(voice.voice.name, 'Samantha');
 });
+
+test('novelty and legacy voices are never chosen, even when listed first', () => {
+  const list = [v('Albert', 'en-US'), v('Bad News', 'en-US'), v('Fred', 'en-US'), v('Zarvox', 'en-US'), v('Samantha', 'en-US')];
+  assert.deepEqual(rankVoices(list).map((x) => x.name), ['Samantha']);
+  const only = [v('Albert', 'en-US'), v('Bells', 'en-US')];
+  assert.deepEqual(rankVoices(only), []);
+});
+
+test('premium and natural voices beat the classic ones', () => {
+  const list = [v('Samantha', 'en-US'), v('Ava (Premium)', 'en-US'), v('Microsoft Aria Online (Natural) - English (United States)', 'en-US', false)];
+  const names = rankVoices(list).map((x) => x.name);
+  assert.equal(names[0], 'Ava (Premium)');
+  assert.ok(names.indexOf('Samantha') < names.length);
+});
+
+test('say passes pitch and rate through to the utterance', () => {
+  const spoken = [];
+  const synth = { ...fakeSynth([]), speak: (u) => spoken.push(u) };
+  const voice = createVoice({ synth, makeUtterance: mk });
+  voice.say('Shoot!', { pitch: 1.3, rate: 1.1 });
+  voice.say('plain');
+  assert.equal(spoken[0].pitch, 1.3);
+  assert.equal(spoken[0].rate, 1.1);
+  assert.equal(spoken[1].pitch, 1);
+  assert.equal(spoken[1].rate, 1);
+});
+
+test('preferred voice wins when installed, and falls back when it is not', () => {
+  const list = [v('Samantha', 'en-US'), v('Daniel', 'en-GB')];
+  assert.equal(createVoice({ synth: fakeSynth(list), makeUtterance: mk, preferred: 'Daniel' }).voice.name, 'Daniel');
+  assert.equal(createVoice({ synth: fakeSynth(list), makeUtterance: mk, preferred: 'Gone' }).voice.name, 'Samantha');
+});
+
+test('next() cycles through distinct voices, wraps, and reports changes', () => {
+  const list = [v('Samantha', 'en-US'), v('Daniel', 'en-GB'), v('Daniel', 'en-GB'), v('Karen', 'en-AU')];
+  const seen = [];
+  const voice = createVoice({ synth: fakeSynth(list), makeUtterance: mk, onChange: (x, all) => seen.push([x.name, all.length]) });
+  assert.equal(voice.candidates.length, 3, 'duplicate names collapse');
+  const order = [voice.voice.name, voice.next().name, voice.next().name, voice.next().name];
+  assert.equal(order[3], order[0], 'wraps');
+  assert.equal(new Set(order.slice(0, 3)).size, 3);
+  assert.deepEqual(seen[0], [order[0], 3]);
+});
+
+test('next() with no voices is null', () => {
+  assert.equal(createVoice({ synth: fakeSynth([]), makeUtterance: mk }).next(), null);
+});

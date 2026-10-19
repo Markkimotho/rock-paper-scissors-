@@ -88,7 +88,7 @@ main {
 }
 
 .stage * { vector-effect: non-scaling-stroke; }
-.stage path, .stage rect, .stage circle {
+.stage path, .stage circle {
   fill: var(--paper);
   stroke: var(--ink);
   stroke-width: 2;
@@ -96,21 +96,32 @@ main {
   stroke-linejoin: round;
 }
 
-/* hands */
-.hand .pose { display: none; }
+/* hands: PNG sprites, ink outline on transparent. Multiply drops the white fill into the paper color. */
+.hand image { mix-blend-mode: multiply; }
+@media (prefers-color-scheme: dark) {
+  .hand image { filter: invert(1); mix-blend-mode: screen; }
+}
+.hand .pose { opacity: 0; }
 .hand[data-pose="rock"] .pose.rock,
 .hand[data-pose="paper"] .pose.paper,
-.hand[data-pose="scissors"] .pose.scissors { display: inline; }
+.hand[data-pose="scissors"] .pose.scissors { opacity: 1; }
 
-.hand .sleeve path { fill: none; }
-.hand .pose path[d^="M-34 -48"] { fill: none; }
+/* The hand idles with a slow, slightly different drift each side so the two are never in lockstep. */
+.float { animation: drift 3.4s ease-in-out infinite alternate; }
+.cpu .float { animation-duration: 4.1s; animation-delay: -1.3s; }
+@keyframes drift {
+  from { transform: translateY(0) rotate(-1deg); }
+  to   { transform: translateY(-5px) rotate(1deg); }
+}
 
 .bob {
+  transform-box: fill-box;
+  transform-origin: 50% 90%;
   transform: translateY(-26px);
-  transition: transform 220ms cubic-bezier(.2, .8, .2, 1), opacity 240ms ease;
+  transition: transform 260ms cubic-bezier(.2, .9, .25, 1.2), opacity 240ms ease;
 }
 .hand[data-thrown="true"] .bob { transform: translateY(-38px); }
-.hand[data-lost="true"] .bob { opacity: 0.3; }
+.hand[data-lost="true"] .bob { opacity: 0.3; transform: translateY(-30px) rotate(5deg); }
 
 /* beat rule: four ticks and one travelling dot */
 .beat .ticks { fill: none; stroke: var(--mute); stroke-width: 2; }
@@ -221,5 +232,6 @@ footer {
 
 @media (prefers-reduced-motion: reduce) {
   .bob, .mark, .beat .dot, .controls, .pips i { transition: none; }
+  .float { animation: none; }
   .caption button .dot-inline { animation: none; }
 }

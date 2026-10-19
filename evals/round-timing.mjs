@@ -8,7 +8,7 @@
 import { chromium } from 'playwright-core';
 import { writeFile, mkdir } from 'node:fs/promises';
 import { serve } from './server.mjs';
-import { TUTORIAL, COUNT } from '../src/lines.js';
+import { TUTORIAL, COUNT, COUNT_PROSODY, resultVariants } from '../src/lines.js';
 import { BEAT_MS } from '../src/stage.js';
 
 const ROUNDS = Number(process.env.ROUNDS || 20);
@@ -23,10 +23,13 @@ const FAKE_SPEECH = () => {
   window.SpeechSynthesisUtterance = U;
   const synth = {
     onvoiceschanged: null,
-    getVoices: () => [{ name: 'Fake', lang: 'en-US', localService: true, default: true }],
+    getVoices: () => [
+      { name: 'Albert', lang: 'en-US', localService: true, default: true },
+      { name: 'Samantha', lang: 'en-US', localService: true, default: false },
+    ],
     cancel() {},
     speak(u) {
-      window.__spoken.push({ t: performance.now(), text: u.text });
+      window.__spoken.push({ t: performance.now(), text: u.text, pitch: u.pitch, rate: u.rate, voice: u.voice && u.voice.name });
       setTimeout(() => u.onend && u.onend(), 40);
     },
   };
@@ -102,8 +105,10 @@ for (let n = 1; n <= ROUNDS; n++) {
   const over = await page.evaluate(() => window.__rps.state === 'over');
   const want = over ? 6 : 5; // 4 count words + result line (+ match line)
   if (speech.length !== want) row.notes.push(`spoke ${speech.length} lines, want ${want}`);
-  if (!/^(Tie\.|(Rock|Paper|Scissors) (breaks|cut|covers) (rock|paper|scissors)\. (You win|Computer wins)\.)$/.test(speech[4]?.text || '')) row.notes.push(`result line ${JSON.stringify(speech[4]?.text)}`);
-
+  const lastResult = await page.evaluate(() => window.__rps.lastResult);
+  if (!resultVariants(lastResult).includes(speech[4]?.text)) row.notes.push(`result line ${JSON.stringify(speech[4]?.text)} is not a variant for ${lastResult?.outcome}`);
+  if (words.length === 4 && words.some((w, i) => w.pitch !== COUNT_PROSODY[i].pitch)) row.notes.push(`count pitch ${words.map((w) => w.pitch)}`);
+  if (speech.some((x) => x.voice !== 'Samantha')) row.notes.push(`wrong voice ${[...new Set(speech.map((x) => x.voice))]} (novelty voice must be skipped)`);
   row.ok = row.notes.length === 0;
   if (!row.ok) fail(`round ${n}: ${row.notes.join('; ')}`);
   rows.push(row);

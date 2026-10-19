@@ -1,5 +1,5 @@
 import { createMatch, pickComputerMove } from './game.js';
-import { COUNT, TUTORIAL, PICK, resultLine, matchLine } from './lines.js';
+import { COUNT, COUNT_PROSODY, TUTORIAL, PICK, resultLine, matchLine } from './lines.js';
 import { createBrowserVoice } from './voice.js';
 import { createSequence, run, BEAT_MS } from './stage.js';
 import { handMarkup, poseClass } from './hands.js';
@@ -15,7 +15,12 @@ const againBtn = $('#again');
 const soundBtn = $('#sound');
 const howBtn = $('#how');
 
-const voice = createBrowserVoice();
+const VOICE_KEY = 'rps.voice';
+const voiceBtn = $('#voice');
+const voice = createBrowserVoice({
+  preferred: (() => { try { return localStorage.getItem(VOICE_KEY); } catch { return null; } })(),
+  onChange: (v, all) => renderVoiceBtn(v, all),
+});
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const match = createMatch({ target: 5 });
 
@@ -28,6 +33,9 @@ const store = {
 let state = 'idle'; // idle | tutorial | ready | busy | over
 let token = 0; // bumps to cancel any in-flight tutorial or round
 let cancelRun = null;
+const lastVariant = { win: -1, lose: -1, tie: -1 };
+// The verdict is warmer on a win, a touch lower on a loss.
+const VERDICT_PROSODY = { win: { pitch: 1.08, rate: 1.02 }, lose: { pitch: 0.94, rate: 0.98 }, tie: { pitch: 1.0, rate: 1.0 } };
 const timers = new Set();
 
 for (const h of Object.values(hands)) h.innerHTML = handMarkup();
@@ -68,6 +76,7 @@ function setMarks(winnerSide) {
     marks[side].dataset.on = String(side === winnerSide);
     hands[side].dataset.lost = String(Boolean(winnerSide) && side !== winnerSide);
   }
+  if (winnerSide) hop(winnerSide);
 }
 
 function setDot(tick, live = true) {
@@ -84,18 +93,56 @@ function resetStage() {
   setDot(0, false);
 }
 
-function pump() {
+// Hand motion. Each hand is animated on its own so nothing moves in lockstep: the computer lags a few
+// milliseconds, swings a little harder or softer, and every beat hits harder than the last, the way
+// people actually pump. Squash on the hit and a wrist swing keep it from reading as a mechanical bob.
+const rand = (lo, hi) => lo + Math.random() * (hi - lo);
+
+function pump(index) {
   if (reducedMotion.matches) return;
-  for (const h of Object.values(hands)) {
-    h.querySelector('.bob').animate(
+  const energy = 1 + index * 0.14;
+  for (const side of ['player', 'cpu']) {
+    const amp = energy * (side === 'cpu' ? rand(0.85, 1.15) : rand(0.95, 1.05));
+    const lag = side === 'cpu' ? rand(0, 40) : 0;
+    const lift = -26 - 14 * amp;
+    const hit = -26 + 42 * amp;
+    hands[side].querySelector('.bob').animate(
       [
-        { transform: 'translateY(-26px)', easing: 'cubic-bezier(.55,0,.9,.45)' },
-        { transform: 'translateY(16px)', offset: 0.32, easing: 'cubic-bezier(.2,.7,.3,1)' },
-        { transform: 'translateY(-26px)' },
+        { transform: 'translateY(-26px) rotate(0deg) scale(1,1)', easing: 'cubic-bezier(.3,.6,.4,1)' },
+        { transform: `translateY(${lift}px) rotate(${-7 * amp}deg) scale(.97,1.04)`, offset: 0.14, easing: 'cubic-bezier(.6,0,.9,.5)' },
+        { transform: `translateY(${hit}px) rotate(${5 * amp}deg) scale(1.07,.92)`, offset: 0.34, easing: 'cubic-bezier(.2,.7,.3,1)' },
+        { transform: `translateY(${hit - 9}px) rotate(${1.5 * amp}deg) scale(.99,1.01)`, offset: 0.5, easing: 'ease-in-out' },
+        { transform: 'translateY(-26px) rotate(0deg) scale(1,1)' },
       ],
-      { duration: BEAT_MS * 0.95 },
+      { duration: BEAT_MS * 0.95, delay: lag },
     );
   }
+}
+
+// The throw: the new shape pops in small and overshoots, then settles.
+function pop(side) {
+  if (reducedMotion.matches) return;
+  const dir = side === 'cpu' ? rand(0.7, 1.3) : 1;
+  hands[side].querySelector('.bob').animate(
+    [
+      { transform: 'translateY(-14px) rotate(-10deg) scale(.78)' },
+      { transform: `translateY(${-50 * dir}px) rotate(4deg) scale(1.12)`, offset: 0.5, easing: 'cubic-bezier(.2,.8,.3,1)' },
+      { transform: 'translateY(-38px) rotate(0deg) scale(1)' },
+    ],
+    { duration: 420, easing: 'cubic-bezier(.3,0,.2,1)', delay: side === 'cpu' ? rand(0, 30) : 0 },
+  );
+}
+
+function hop(side) {
+  if (reducedMotion.matches) return;
+  hands[side].querySelector('.bob').animate(
+    [
+      { transform: 'translateY(-38px) scale(1)' },
+      { transform: 'translateY(-58px) rotate(-3deg) scale(1.05)', offset: 0.45, easing: 'cubic-bezier(.2,.8,.3,1)' },
+      { transform: 'translateY(-38px) scale(1)' },
+    ],
+    { duration: 380, delay: 430 },
+  );
 }
 
 function renderScore() {
@@ -117,14 +164,16 @@ function playSequence({ onThrow }) {
         if (e.type === 'pump') {
           setPose('player', 'rest');
           setPose('cpu', 'rest');
-          pump();
+          pump(e.index);
           setDot(e.index, true);
-          voice.say(COUNT[e.index]);
+          voice.say(COUNT[e.index], COUNT_PROSODY[e.index]);
           setCaption(COUNT[e.index]);
         } else {
           setDot(3, true);
-          voice.say(COUNT[3]);
+          voice.say(COUNT[3], COUNT_PROSODY[3]);
           setCaption(COUNT[3]);
+          pop('player');
+          pop('cpu');
           onThrow();
         }
       },
@@ -161,7 +210,7 @@ async function runTutorial() {
     setPose('cpu', step.cpu || 'rest');
     if (step.win) setMarks(step.win);
     setCaption(step.say);
-    await voice.sayAsync(step.say);
+    await voice.sayAsync(step.say, { rate: 0.96 });
     if (!alive()) return;
     await sleep(voice.supported && !voice.muted ? 350 : Math.max(1800, step.say.length * 55));
     if (!alive()) return;
@@ -231,11 +280,13 @@ async function playRound(move) {
   });
   if (my !== token) return;
 
-  const line = resultLine(result);
+  const { line, index } = resultLine(result, { last: lastVariant[result.outcome] });
+  lastVariant[result.outcome] = index;
+  window.__rps.lastResult = result;
   await sleep(480); // let "Shoot!" land before the verdict
   if (my !== token) return;
   setCaption(line);
-  await voice.sayAsync(line);
+  await voice.sayAsync(line, VERDICT_PROSODY[result.outcome]);
   if (my !== token) return;
 
   if (result.over) {
@@ -300,6 +351,18 @@ if (!voice.supported) {
   soundBtn.hidden = true;
 }
 
+// Voice picker: cycles the best few voices installed on this device and remembers the choice.
+function renderVoiceBtn(v, all) {
+  voiceBtn.hidden = !v || all.length < 2;
+  if (v) voiceBtn.textContent = `voice: ${v.name.replace(/\s*\(.*\)/, '').replace(/^Microsoft\s+|\s+Online.*$/g, '')}`;
+}
+voiceBtn.addEventListener('click', () => {
+  const v = voice.next();
+  if (!v) return;
+  store.set(VOICE_KEY, v.name);
+  voice.say(`Hi, I'm ${v.name.replace(/\s*\(.*\)/, '')}. Pick a shape.`);
+});
+
 const KEYS = { r: 'rock', p: 'paper', s: 'scissors' };
 addEventListener('keydown', (e) => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
@@ -325,4 +388,4 @@ showBegin();
 setState('idle');
 
 // Test hook for the browser eval: lets it observe speech without audio hardware.
-window.__rps = { get state() { return state; }, match, voice };
+window.__rps = { get state() { return state; }, match, voice, lastResult: null };

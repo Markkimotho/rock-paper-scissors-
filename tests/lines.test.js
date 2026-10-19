@@ -1,32 +1,65 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { MOVES, resolveRound } from '../src/game.js';
-import { COUNT, TUTORIAL, resultLine, matchLine } from '../src/lines.js';
+import { COUNT, COUNT_PROSODY, TUTORIAL, resultLine, resultVariants, matchLine } from '../src/lines.js';
 
 test('count words are rock, paper, scissors, shoot', () => {
   assert.deepEqual(COUNT, ['Rock.', 'Paper.', 'Scissors.', 'Shoot!']);
 });
 
-test('every matchup has a non-empty result line, and the winner is named', () => {
+test('every matchup has variants, each stating the rule and the verdict', () => {
   for (const p of MOVES) {
     for (const c of MOVES) {
       const r = resolveRound(p, c);
-      const line = resultLine(r);
-      assert.ok(line.length > 0 && line.length <= 120, line);
-      if (r.outcome === 'tie') assert.equal(line, 'Tie.');
-      else {
-        assert.match(line, new RegExp(`^${r.winner[0].toUpperCase()}${r.winner.slice(1)} `));
-        assert.match(line, r.outcome === 'win' ? /You win\.$/ : /Computer wins\.$/);
+      const variants = resultVariants(r);
+      assert.ok(variants.length >= 3, `${p} vs ${c}: want several variants`);
+      for (const line of variants) {
+        assert.ok(line.length > 0 && line.length <= 120, line);
+        if (r.outcome === 'tie') continue;
+        const cap = r.winner[0].toUpperCase() + r.winner.slice(1);
+        assert.match(line, new RegExp(`${cap} (breaks|cut|covers) (rock|paper|scissors)\\.`), line);
       }
     }
   }
 });
 
 test('result lines state the true rule', () => {
-  assert.equal(resultLine(resolveRound('rock', 'scissors')), 'Rock breaks scissors. You win.');
-  assert.equal(resultLine(resolveRound('scissors', 'paper')), 'Scissors cut paper. You win.');
-  assert.equal(resultLine(resolveRound('paper', 'rock')), 'Paper covers rock. You win.');
-  assert.equal(resultLine(resolveRound('rock', 'paper')), 'Paper covers rock. Computer wins.');
+  const only = (p, c) => resultVariants(resolveRound(p, c));
+  assert.ok(only('rock', 'scissors').every((l) => l.includes('Rock breaks scissors.')));
+  assert.ok(only('scissors', 'paper').every((l) => l.includes('Scissors cut paper.')));
+  assert.ok(only('paper', 'rock').every((l) => l.includes('Paper covers rock.')));
+  assert.ok(only('rock', 'paper').every((l) => l.includes('Paper covers rock.')));
+});
+
+test('a loss never claims a win and a win never claims a loss', () => {
+  assert.ok(resultVariants(resolveRound('rock', 'paper')).every((l) => !/you win|point for you|nice one/i.test(l)));
+  assert.ok(resultVariants(resolveRound('rock', 'scissors')).every((l) => !/computer wins|point to the computer|not this time/i.test(l)));
+});
+
+test('resultLine never repeats the previous variant back to back', () => {
+  const r = resolveRound('rock', 'scissors');
+  for (let last = 0; last < resultVariants(r).length; last++) {
+    for (const rng of [() => 0, () => 0.3, () => 0.6, () => 0.99]) {
+      assert.notEqual(resultLine(r, { rng, last }).index, last);
+    }
+  }
+});
+
+test('resultLine covers every variant over the rng range', () => {
+  const r = resolveRound('paper', 'paper');
+  const seen = new Set();
+  for (let i = 0; i < 40; i++) seen.add(resultLine(r, { rng: () => i / 40 }).index);
+  assert.equal(seen.size, resultVariants(r).length);
+});
+
+test('count prosody climbs toward Shoot and stays in speech-safe ranges', () => {
+  assert.equal(COUNT_PROSODY.length, COUNT.length);
+  const pitches = COUNT_PROSODY.map((p) => p.pitch);
+  assert.deepEqual([...pitches].sort((a, b) => a - b), pitches, 'pitch rises');
+  assert.ok(pitches.at(-1) > pitches[0] + 0.2, 'audible rise');
+  for (const { pitch, rate } of COUNT_PROSODY) {
+    assert.ok(pitch >= 0.5 && pitch <= 2 && rate >= 0.5 && rate <= 2);
+  }
 });
 
 test('tutorial steps are well-formed', () => {

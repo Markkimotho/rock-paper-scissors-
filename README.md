@@ -35,12 +35,13 @@ Words are fired from the beat clock and never awaited, so a slow speech engine c
 
 ```
 index.html            shell and SVG stage
-style.css             tokens, layout, no images
+style.css             tokens, layout
 src/game.js           pure rules and match state (no DOM)
 src/lines.js          every spoken/captioned line, as data
 src/voice.js          Web Speech API wrapper, voice ranking, no-op when unsupported
 src/stage.js          beat timeline (clock-agnostic, injectable)
-src/hands.js          SVG hand glyphs
+src/hands.js          PNG hand sprites and per-pose transforms
+assets/               rock.png, paper.png, scissors.png
 src/main.js           DOM wiring and state machine
 tests/                gate tests (node:test, no dependencies)
 evals/                browser eval and dev screenshot helpers (playwright-core)
@@ -50,7 +51,7 @@ evals/                browser eval and dev screenshot helpers (playwright-core)
 ## Tests and evals
 
 ```bash
-npm test                      # gate: 35 tests, under a second
+npm test                      # gate: 49 tests, under a second
 git config core.hooksPath .githooks   # once per clone, runs tests on commit
 npm install && npm run eval   # periodic: 20 rounds in headless Chromium
 ROUNDS=6 npm run eval         # quick smoke
@@ -62,6 +63,16 @@ The eval uses a fake `speechSynthesis` and checks, per round: throw lands at 3 b
 
 ## Voice-over notes
 
-Uses the browser's `speechSynthesis`: no API, no key, no audio files. `voice.js` ranks installed voices: English only, on-device before network, en-GB/en-US first, names containing premium/enhanced/natural/neural get a bump. Quality depends on the voices installed on the OS. Speech only starts after the first tap because browsers block it before a user gesture.
+Uses the browser's `speechSynthesis`: no API, no key, no audio files. Three things keep it from sounding robotic:
+
+- **Voice choice.** `voice.js` never picks novelty or legacy voices (Albert, Fred, Bells, Zarvox and friends), and prefers premium/enhanced/natural/neural voices, then known-good ones (Samantha, Ava, Daniel, Karen...). The "voice:" link in the header cycles the best few installed voices and remembers your pick.
+- **Delivery.** The count rises in pitch and "Shoot!" is quicker and higher (`COUNT_PROSODY` in `src/lines.js`). Verdicts are warmer on a win and lower on a loss.
+- **Variety.** Each verdict has several phrasings and never repeats the same one twice in a row, so a long match does not loop.
+
+For the most natural sound, install a Premium or Enhanced voice (macOS: System Settings, Accessibility, Spoken Content, System Voice, Manage Voices) and pick it with the header link. Speech only starts after the first tap because browsers block it before a user gesture.
+
+## Motion notes
+
+The hands are the original PNGs, animated per hand so nothing moves in lockstep: each pump has an anticipation lift, a hit with squash, and a wrist swing. Every beat hits harder than the last, the computer lags a few milliseconds and swings a little differently, the throw pops in and overshoots, the winner hops, and idle hands drift slowly. The beat clock itself stays exact, so the voice and the eval timing do not move.
 
 Built as part of the [Odin Project](https://www.theodinproject.com/lessons/foundations-rock-paper-scissors) foundations course.
